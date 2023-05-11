@@ -60,7 +60,7 @@ class Crop extends StatefulWidget {
       context.findAncestorStateOfType<CropState>();
 }
 
-class CropState extends State<Crop> with TickerProviderStateMixin, Drag {
+class CropState extends State<Crop> with TickerProviderStateMixin implements Drag {
   final _surfaceKey = GlobalKey();
 
   late final AnimationController _activeController;
@@ -615,6 +615,21 @@ class CropState extends State<Crop> with TickerProviderStateMixin, Drag {
         );
       });
     }
+  }
+
+  @override
+  void cancel() {
+    // TODO: implement cancel
+  }
+
+  @override
+  void end(DragEndDetails details) {
+    // TODO: implement end
+  }
+
+  @override
+  void update(DragUpdateDetails details) {
+    // TODO: implement update
   }
 }
 
