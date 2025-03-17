@@ -72,7 +72,7 @@ class _MyAppState extends State<MyApp> {
                   'Crop Image',
                   style: Theme.of(context)
                       .textTheme
-                      .button
+                      .labelLarge
                       ?.copyWith(color: Colors.white),
                 ),
                 onPressed: () => _cropImage(),
@@ -127,6 +127,8 @@ class _MyAppState extends State<MyApp> {
       file: _file!,
       preferredSize: (2000 / scale).round(),
     );
+
+    if (sample == null) return;
 
     final file = await ImageCrop.cropImage(
       file: sample,

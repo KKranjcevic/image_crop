@@ -33,7 +33,6 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -41,7 +40,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public final class ImageCropPlugin implements FlutterPlugin , ActivityAware, MethodCallHandler, PluginRegistry.RequestPermissionsResultListener {
+public final class ImageCropPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler, PluginRegistry.RequestPermissionsResultListener {
     private static final int PERMISSION_REQUEST_CODE = 13094;
 
     private MethodChannel channel;
@@ -56,15 +55,6 @@ public final class ImageCropPlugin implements FlutterPlugin , ActivityAware, Met
     }
 
     public ImageCropPlugin(){ }
-
-    /**
-     * legacy APIs
-     */
-    public static void registerWith(Registrar registrar) {
-        ImageCropPlugin instance = new ImageCropPlugin(registrar.activity());
-        instance.setup(registrar.messenger());
-        registrar.addRequestPermissionsResultListener(instance);
-    }
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {

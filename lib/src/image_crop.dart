@@ -25,36 +25,42 @@ class ImageCrop {
       const MethodChannel('plugins.lykhonis.com/image_crop');
 
   static Future<bool> requestPermissions() => _channel
-      .invokeMethod('requestPermissions')
-      .then<bool>((result) => result);
+      .invokeMethod<bool>('requestPermissions')
+      .then<bool>((result) => result ?? false);
 
-  static Future<ImageOptions> getImageOptions({
+  static Future<ImageOptions?> getImageOptions({
     required File file,
   }) async {
     final result =
         await _channel.invokeMethod('getImageOptions', {'path': file.path});
 
+    final width = result['width'] as int?;
+    final height = result['height'] as int?;
+
+    if (width == null || height == null) return null;
+    
+
     return ImageOptions(
-      width: result['width'],
-      height: result['height'],
+      width: width,
+      height: height,
     );
   }
 
-  static Future<File> cropImage({
+  static Future<File?> cropImage({
     required File file,
     required Rect area,
     double? scale,
   }) =>
-      _channel.invokeMethod('cropImage', {
+      _channel.invokeMethod<String>('cropImage', {
         'path': file.path,
         'left': area.left,
         'top': area.top,
         'right': area.right,
         'bottom': area.bottom,
         'scale': scale ?? 1.0,
-      }).then<File>((result) => File(result));
+      }).then((result) => result != null ? File(result) : null);
 
-  static Future<File> sampleImage({
+  static Future<File?> sampleImage({
     required File file,
     int? preferredSize,
     int? preferredWidth,
@@ -69,12 +75,12 @@ class ImageCrop {
       return true;
     }());
 
-    final String path = await _channel.invokeMethod('sampleImage', {
+    final String? path = await _channel.invokeMethod<String>('sampleImage', {
       'path': file.path,
       'maximumWidth': preferredSize ?? preferredWidth,
       'maximumHeight': preferredSize ?? preferredHeight,
     });
 
-    return File(path);
+    return path != null ? File(path) : null;
   }
 }
