@@ -4,33 +4,103 @@ version '1.0-SNAPSHOT'
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.1'
+        // Gradle 9 (AGP 9) cannot load AGP 8.x, and Gradle 8 cannot load AGP 9.
+        def gradleMajor = gradle.gradleVersion.split('\\.')[0].toInteger()
+        def agpVersion = gradleMajor >= 9 ? '9.1.0' : '8.7.0'
+        classpath "com.android.tools.build:gradle:$agpVersion"
     }
 }
 
 rootProject.allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
 apply plugin: 'com.android.library'
 
+def readCompileSdk(androidExt) {
+    if (androidExt == null) {
+        return null
+    }
+    try {
+        def value = androidExt.compileSdk
+        if (value instanceof Number) {
+            return value as int
+        }
+    } catch (ignored) {
+    }
+    try {
+        def raw = androidExt.compileSdkVersion?.toString()
+        if (raw != null) {
+            def digits = raw.replace('android-', '')
+            if (digits.isInteger()) {
+                return digits.toInteger()
+            }
+        }
+    } catch (ignored) {
+    }
+    return null
+}
+
 android {
     namespace = "com.lykhonis.imagecrop"
-    compileSdkVersion 28
+
+    // Match the host app so this library is not forced onto a higher SDK than
+    // that app has installed. AGP 9 with android.newDsl=false only accepts
+    // compileSdkVersion; the default AGP 9 DSL only accepts compileSdk.
+    def sdk = readCompileSdk(rootProject.findProject(':app')?.extensions?.findByName('android'))
+    if (sdk == null) {
+        def flutterExt = project.extensions.findByName('flutter')
+        if (flutterExt != null) {
+            sdk = flutterExt.compileSdkVersion as int
+        }
+    }
+    if (sdk == null) {
+        sdk = 28
+    }
+    try {
+        compileSdk = sdk
+    } catch (ignored) {
+    }
+    try {
+        compileSdkVersion sdk
+    } catch (ignored) {
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
 
     defaultConfig {
-        minSdkVersion 16
+        try {
+            minSdk = 16
+        } catch (ignored) {
+        }
+        try {
+            minSdkVersion 16
+        } catch (ignored) {
+        }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-    lintOptions {
-        disable 'InvalidPackage'
+
+    try {
+        lint {
+            disable 'InvalidPackage'
+        }
+    } catch (ignored) {
+    }
+    try {
+        lintOptions {
+            disable 'InvalidPackage'
+        }
+    } catch (ignored) {
     }
 }
 
